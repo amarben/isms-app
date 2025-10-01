@@ -1,73 +1,134 @@
-# React + TypeScript + Vite
+# ISMS Application 🔒
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive **Information Security Management System (ISMS)** application built with React, TypeScript, and modern web technologies. This application helps organizations implement and manage ISO 27001:2022 compliant information security policies and procedures.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🏢 **ISMS Scope Definition**
+- **Guided wizard** for defining organizational scope
+- **20+ predefined exclusions** with professional justifications
+- **AI-powered document generation** using DeepSeek Chat
+- **Professional DOCX export** with rich formatting
 
-## React Compiler
+### 📋 **Information Security Policy Module**
+- **5-step policy creation wizard**
+- **Predefined templates** for policy statements, objectives, and compliance requirements
+- **Click-to-select interface** for common ISMS components
+- **6 professional role templates** with detailed responsibilities
+- **AI-enhanced policy generation** with comprehensive prompts
+- **Multi-format export** (Markdown & DOCX)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🤖 **AI Integration**
+- **DeepSeek Chat API** integration for professional document generation
+- **Intelligent prompting** following ISO 27001:2022 standards
+- **Context-aware content** generation based on organization details
 
-## Expanding the ESLint configuration
+## 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **DeepSeek API key** (for AI features)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/amarben/isms-app.git
+   cd isms-app
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Add your DeepSeek API key to .env
+   VITE_DEEPSEEK_API_KEY=your_api_key_here
+   ```
+
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser** and navigate to `http://localhost:5173`
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Custom CSS utility classes (Tailwind-inspired)
+- **AI Integration**: DeepSeek Chat API
+- **Document Generation**: docx library for professional DOCX export
+- **Icons**: Lucide React
+- **Development**: ESLint, hot module replacement
+
+## 📁 Project Structure
+
+```
+src/
+├── components/
+│   ├── ScopeDefinition.tsx      # ISMS scope definition wizard
+│   └── InformationSecurityPolicy.tsx  # Policy creation module
+├── index.css                    # Custom utility styles
+├── App.tsx                      # Main application component
+└── main.tsx                     # Application entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔧 Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🌟 Key Features Detail
+
+### **Predefined Content Libraries**
+- **15 security objectives** aligned with ISO 27001
+- **20 common scope exclusions** with justifications
+- **6 organizational roles** with detailed responsibilities
+- **15 compliance requirements** (GDPR, SOX, HIPAA, etc.)
+- **Multiple policy statement templates**
+
+### **Professional Document Export**
+- **Advanced markdown parsing** for DOCX generation
+- **Rich formatting** with proper headings and styles
+- **Professional layout** suitable for organizational use
+- **Multi-format support** (MD, DOCX)
+
+### **User Experience**
+- **Intuitive wizard interfaces** with step-by-step guidance
+- **Visual feedback** with green highlighting for selections
+- **Hybrid approach** supporting both predefined and custom content
+- **Responsive design** for desktop and mobile use
+
+## 🔐 Security
+
+- **API keys protected** with proper .gitignore configuration
+- **Environment variable management** for sensitive data
+- **Input validation** through TypeScript interfaces
+- **Error handling** for API failures
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support, please open an issue on GitHub or contact the maintainers.
+
+---
+
+**Built with ❤️ for information security professionals**
