@@ -29,3 +29,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test artifacts
+playwright-report/
+test-results/
+e2e-results/
+debug-soa.html
+vitest
+
+# Backup files
+*.backup
+
+# Build artifacts
+isms-app@0.0.0

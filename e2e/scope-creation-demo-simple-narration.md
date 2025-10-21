@@ -1,0 +1,69 @@
+# ISMS Scope Creation Demonstration - Simple Narrative Guide
+
+## Introduction
+
+This demonstration showcases a streamlined Information Security Management System (ISMS) scope definition process for ISO 27001 compliance. Through an intuitive five-step wizard, organizations can systematically define their ISMS boundaries by identifying internal and external factors, stakeholders, system dependencies, exclusions, and the formal scope statement. This workflow ensures comprehensive documentation while maintaining alignment with ISO 27001 requirements and industry best practices.
+
+## The Journey Begins
+
+The demonstration begins by accessing the ISMS Dashboard, which serves as the central hub for managing the organization's ISO 27001 implementation. This dashboard provides a comprehensive overview of the implementation journey, displaying progress across all major stages including scope definition, risk assessment, control implementation, and audit readiness. The clean, intuitive interface immediately gives users insight into their current status and highlights areas requiring attention.
+
+From the dashboard, we navigate to the "Define ISMS Scope" section through the left sidebar navigation. This action initiates the scope definition workflow, a critical foundational step in ISO 27001 implementation. The scope definition process is deliberately structured as a five-step wizard, guiding organizations through the systematic analysis required to establish appropriate ISMS boundaries. Each step builds upon the previous one, ensuring that scope decisions are based on thorough understanding rather than arbitrary choices.
+
+## Establishing Organizational Context
+
+The first step centers on understanding the organizational context through the identification of internal and external issues. We begin by documenting essential organizational details, starting with the organization name "TechCorp Solutions Ltd." This information will appear throughout all generated documentation and helps establish the specific organizational context for the ISMS. Next, we specify the industry classification as "Cloud Services & Software Development," which is crucial because different industries face different information security risks. Cloud services providers, for instance, must address unique challenges such as multi-tenancy, data segregation, and service availability concerns.
+
+We set the policy version as "2.0," indicating this is an updated iteration of the organization's ISMS scope documentation. Leadership accountability is fundamental to ISO 27001, so we designate the executive sponsors and oversight authorities. Michael Anderson is entered as the CEO, establishing executive ownership of the ISMS, while Jennifer Martinez serves as the Chief Information Security Officer (CISO), providing technical leadership and ensuring adequate resources and authority for information security initiatives. These leadership designations are not merely ceremonial—they represent the organization's commitment to integrating information security into its governance structure.
+
+The effective date is set to October 18, 2025, marking when this scope definition becomes active, with the next review date scheduled for October 18, 2026, ensuring annual reassessment as required by ISO 27001.
+
+## Identifying Internal Challenges
+
+Moving deeper into the organizational context analysis, we systematically select internal issues that influence the ISMS scope. The demonstration includes the selection of "Sensitive R&D data requires high protection," acknowledging the critical nature of intellectual property in a software development organization. Research and development data represents the company's competitive advantage and future product roadmap, making its protection paramount. We also select "Customer data and privacy requirements," reflecting the organization's responsibility to protect customer information in accordance with privacy laws and contractual obligations. Additionally, we identify "Financial data processing and reporting," recognizing the organization's obligations to maintain the integrity and confidentiality of financial information for regulatory compliance and stakeholder trust.
+
+## Understanding External Pressures
+
+The external issues analysis reveals the broader ecosystem in which the organization operates. We select "Industry regulations (GDPR, HIPAA, SOX, etc.)" as a primary external driver, acknowledging the heavily regulated environment in which software development and cloud services companies must operate. These regulations impose mandatory security controls and compliance requirements that directly shape the ISMS scope. The General Data Protection Regulation (GDPR) particularly impacts how customer data is processed and protected, while other frameworks like HIPAA may apply if the organization handles healthcare information.
+
+"Cybersecurity threats and attack vectors" is selected to recognize the evolving threat landscape that all organizations face. This includes sophisticated attacks such as ransomware, advanced persistent threats, phishing campaigns, and supply chain compromises. These external pressures significantly influence the scope and implementation of the Information Security Management System.
+
+## Identifying Stakeholders
+
+Having established the internal and external context, we proceed to the second step: identifying interested parties. ISO 27001 Clause 4.2 requires organizations to identify stakeholders and their requirements, ensuring the ISMS addresses expectations beyond internal management preferences. We begin by selecting "Customers," who require data protection, privacy compliance, and service availability assurances. Customer expectations often drive significant security investments, as their trust is fundamental to business success.
+
+"Employees" are selected as a key interested party, recognizing their need for personal data protection, workplace security, and clear policies governing their use of organizational information systems. Employees are both users of the ISMS and subjects whose personal information must be protected. We also select "Regulatory Bodies (GDPR/DPA)," acknowledging the enforcement authority of data protection regulators and the legal obligations they impose. Each of these interested parties brings unique requirements and expectations that must be balanced within the ISMS scope.
+
+## Documenting Dependencies
+
+The third step addresses interfaces and dependencies, helping identify situations where organizational boundaries and technical boundaries intersect. ISO 27001 requires understanding these interfaces because they can constrain scope decisions. For example, if two departments share infrastructure, it may be impractical to include one in scope while excluding the other. We demonstrate this by adding a specific interface dependency.
+
+The "Customer Management System (CRM)" is documented as a critical system with a dependency on "AWS Cloud Infrastructure." This relationship is significant because the CRM system processes all customer data, making it central to the ISMS scope. However, it relies entirely on AWS for its infrastructure, creating a dependency on the cloud provider's security controls. We note that the impact on scope is "Critical - Customer data processing," emphasizing that this dependency influences not just what is in scope but how those scoped items must be protected. This analysis helps ensure that the ISMS adequately addresses security considerations across organizational and technical boundaries.
+
+## Defining Exclusions
+
+The fourth step focuses on exclusions from scope, an essential aspect of scope definition that requires careful justification. ISO 27001 requires organizations to document and justify scope exclusions, and auditors will verify that these exclusions are legitimate and that the remaining scope adequately addresses the organization's information security risks. We select "Personal employee devices (BYOD)" as an exclusion, justified because the company has no administrative control over personal devices used by employees. While employees may access company resources from personal devices, the devices themselves cannot be secured to the same standards as company-owned equipment and therefore remain outside the ISMS scope.
+
+We also select "Guest Wi-Fi networks" as an exclusion. This is justified because the guest network is architecturally isolated with no access to business systems or data. Guest Wi-Fi is designed for visitors and provides internet access only, with strict network segmentation preventing any interaction with the corporate network or information assets. These well-justified exclusions demonstrate that scope boundaries are based on practical control considerations and security architecture rather than convenience. Such thoughtful exclusions show auditors that scope decisions are appropriate and reasonable given the organization's circumstances.
+
+## Formalizing the Scope Statement
+
+The fifth and final step involves creating the formal scope document, which consolidates all previous analysis into a coherent statement of ISMS boundaries. This document will be included in certification audits and serves as a key reference throughout ISO 27001 implementation. We begin by selecting the key processes and services that fall within scope. These include "Customer data processing," which encompasses all activities involving customer information, and "Software development and deployment," representing the core technical processes through which the organization creates value.
+
+"Email and communication services" are included because they are fundamental to business operations and handle sensitive information daily. This focused set of critical processes ensures that the most important information-handling activities are covered by the ISMS.
+
+For organizational units, we include the "IT Department," which manages technical infrastructure and implements security controls. "Research & Development (R&D)" is included because it handles intellectual property and develops the products that differentiate the company in the marketplace. "Customer Service" is scoped because it processes customer data and maintains direct customer relationships. These three departments represent the core organizational units handling sensitive information.
+
+Physical locations are carefully defined to establish geographical boundaries. "Main office building" represents the primary physical site where employees work and information is processed. "Data center facility" is included as the location where critical servers and infrastructure are housed. "Cloud infrastructure (AWS/Azure/GCP)" acknowledges that much of the organization's infrastructure exists in virtualized environments provided by cloud service providers. These three locations comprehensively cover where the organization's information assets are processed and stored.
+
+## Adding Context and Completing the Process
+
+To provide additional context and clarification, we add notes to the scope document: "This ISMS scope covers all critical business operations and customer-facing services." These notes help auditors and stakeholders understand the strategic focus areas and the rationale behind scope decisions. They also provide context that may not be immediately apparent from the lists of processes, departments, and locations.
+
+As we reach the end of the workflow, we review the comprehensive Scope Document Summary, which provides a consolidated view of all scope components. The summary shows the number of processes, departments, physical locations, and exclusions that have been defined, along with a recap of the internal issues, external issues, interested parties, and interfaces identified during the earlier steps. This holistic view allows for verification of completeness and consistency before finalizing the scope definition.
+
+The demonstration concludes with the completion of the scope definition process. At this point, the organization has systematically identified its context, stakeholders, boundaries, and exclusions. All data is automatically saved to local storage, ensuring that progress is preserved. The user is presented with options to generate an AI-powered scope document that can be exported for management review and audit purposes, or to continue without AI generation if they prefer to work with the structured data directly. This systematic approach to scope definition ensures that decisions are based on thorough analysis rather than arbitrary choices, significantly improving the organization's readiness for ISO 27001 certification and enhancing the overall effectiveness of the Information Security Management System.
+
+## Conclusion
+
+This streamlined demonstration illustrates how the ISMS Scope Definition workflow transforms a complex ISO 27001 requirement into a manageable, step-by-step process. By guiding organizations through systematic analysis of their context, stakeholders, dependencies, exclusions, and scope statement, the tool ensures that nothing is overlooked and that all decisions are properly documented and justified. The result is a well-defined ISMS scope that serves as a solid foundation for the entire ISO 27001 implementation journey, providing clarity for both the organization and external auditors about what is—and is not—covered by the Information Security Management System.

@@ -1,7 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronRight, ChevronLeft, Save, FileText, Building, Users, Shield, ExternalLink, Plus, Check, Loader2, Download, Copy, FileDown } from 'lucide-react'
 
 interface ScopeData {
+  organizationName: string
+  organizationType: string
+  industry: string
+  policyVersion: string
+  ceoName: string
+  cisoName: string
+  effectiveDate: string
+  nextReviewDate: string
   internalIssues: string[]
   externalIssues: string[]
   interestedParties: Array<{
@@ -27,6 +35,14 @@ interface ScopeData {
 }
 
 const initialScopeData: ScopeData = {
+  organizationName: '',
+  organizationType: 'Corporation',
+  industry: '',
+  policyVersion: '',
+  ceoName: '',
+  cisoName: '',
+  effectiveDate: '',
+  nextReviewDate: '',
   internalIssues: [],
   externalIssues: [],
   interestedParties: [],
@@ -285,9 +301,26 @@ const predefinedScopeExclusions = [
   }
 ]
 
-const ScopeDefinition: React.FC = () => {
+interface ScopeDefinitionProps {
+  onScopeComplete?: (scopeData: ScopeData) => void
+}
+
+const ScopeDefinition: React.FC<ScopeDefinitionProps> = ({ onScopeComplete }) => {
   const [currentStep, setCurrentStep] = useState(0)
-  const [scopeData, setScopeData] = useState<ScopeData>(initialScopeData)
+
+  // Load from localStorage if it exists, otherwise use initialScopeData
+  const [scopeData, setScopeData] = useState<ScopeData>(() => {
+    const saved = localStorage.getItem('isms-scope-data')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch {
+        return initialScopeData
+      }
+    }
+    return initialScopeData
+  })
+
   const [customInternalIssue, setCustomInternalIssue] = useState('')
   const [customExternalIssue, setCustomExternalIssue] = useState('')
   const [customProcess, setCustomProcess] = useState('')
@@ -296,6 +329,13 @@ const ScopeDefinition: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedDocument, setGeneratedDocument] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Save to localStorage whenever scopeData changes
+  useEffect(() => {
+    localStorage.setItem('isms-scope-data', JSON.stringify(scopeData))
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event('isms-data-updated'))
+  }, [scopeData])
 
   const steps = [
     {
@@ -328,6 +368,11 @@ const ScopeDefinition: React.FC = () => {
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
+    } else {
+      // On final step completion, pass data back to parent
+      if (onScopeComplete) {
+        onScopeComplete(scopeData)
+      }
     }
   }
 
@@ -608,48 +653,58 @@ You are an expert ISO 27001 consultant. Generate a comprehensive, professional I
 1. Use ALL processes, departments, and locations provided - do not select only a few
 2. Include ALL exclusions with their specific justifications
 3. Reference ALL internal/external issues and interested parties
-4. Create a realistic organization name (not placeholders like [Organization Name])
-5. Use current date and realistic details
-6. Make it audit-ready and professional
+4. Use the exact organization details provided (name, industry, CEO, CISO, dates)
+5. Make it audit-ready and professional
+
+## Organization Information:
+
+**Organization Name:** ${scopeData.organizationName}
+**Organization Type:** ${scopeData.organizationType}
+**Industry:** ${scopeData.industry}
+**Policy Version:** ${scopeData.policyVersion}
+**CEO:** ${scopeData.ceoName}
+**Chief Information Security Officer (CISO):** ${scopeData.cisoName}
+**Effective Date:** ${scopeData.effectiveDate}
+**Next Review Date:** ${scopeData.nextReviewDate}
 
 ## Analysis Data:
 
 ### Internal Issues Identified (USE ALL):
-${scopeData.internalIssues.map(issue => `- ${issue}`).join('\n')}
+${scopeData.internalIssues && scopeData.internalIssues.length > 0 ? scopeData.internalIssues.map(issue => `- ${issue}`).join('\n') : '- None specified'}
 
 ### External Issues Identified (USE ALL):
-${scopeData.externalIssues.map(issue => `- ${issue}`).join('\n')}
+${scopeData.externalIssues && scopeData.externalIssues.length > 0 ? scopeData.externalIssues.map(issue => `- ${issue}`).join('\n') : '- None specified'}
 
 ### Interested Parties (REFERENCE ALL):
-${scopeData.interestedParties.map(party => `
+${scopeData.interestedParties && scopeData.interestedParties.length > 0 ? scopeData.interestedParties.map(party => `
 - **${party.party}**
   - Requirements: ${party.requirements}
   - Influence on Scope: ${party.influence}
-`).join('\n')}
+`).join('\n') : '- None specified'}
 
 ### System Interfaces & Dependencies:
-${scopeData.interfaces.map(interface_ => `
+${scopeData.interfaces && scopeData.interfaces.length > 0 ? scopeData.interfaces.map(interface_ => `
 - **${interface_.system}**
   - Dependency: ${interface_.dependency}
   - Impact on Scope: ${interface_.impact}
-`).join('\n')}
+`).join('\n') : '- None specified'}
 
 ### Scope Components - INCLUDE ALL ITEMS:
 
-**ALL Processes and Services (${scopeData.scopeDocument.processesAndServices.length} total):**
-${scopeData.scopeDocument.processesAndServices.map(item => `- ${item}`).join('\n')}
+**ALL Processes and Services (${scopeData.scopeDocument?.processesAndServices?.length || 0} total):**
+${scopeData.scopeDocument?.processesAndServices && scopeData.scopeDocument.processesAndServices.length > 0 ? scopeData.scopeDocument.processesAndServices.map(item => `- ${item}`).join('\n') : '- None specified'}
 
-**ALL Departments/Units (${scopeData.scopeDocument.departments.length} total):**
-${scopeData.scopeDocument.departments.map(item => `- ${item}`).join('\n')}
+**ALL Departments/Units (${scopeData.scopeDocument?.departments?.length || 0} total):**
+${scopeData.scopeDocument?.departments && scopeData.scopeDocument.departments.length > 0 ? scopeData.scopeDocument.departments.map(item => `- ${item}`).join('\n') : '- None specified'}
 
-**ALL Physical Locations (${scopeData.scopeDocument.physicalLocations.length} total):**
-${scopeData.scopeDocument.physicalLocations.map(item => `- ${item}`).join('\n')}
+**ALL Physical Locations (${scopeData.scopeDocument?.physicalLocations?.length || 0} total):**
+${scopeData.scopeDocument?.physicalLocations && scopeData.scopeDocument.physicalLocations.length > 0 ? scopeData.scopeDocument.physicalLocations.map(item => `- ${item}`).join('\n') : '- None specified'}
 
-**ALL Exclusions with Justifications (${scopeData.exclusions.length} total):**
-${scopeData.exclusions.map(exclusion => `
+**ALL Exclusions with Justifications (${scopeData.exclusions?.length || 0} total):**
+${scopeData.exclusions && scopeData.exclusions.length > 0 ? scopeData.exclusions.map(exclusion => `
 - **${exclusion.item}**
   - Justification: ${exclusion.justification}
-`).join('\n')}
+`).join('\n') : '- None specified'}
 
 **Additional Context:**
 ${scopeData.scopeDocument.additionalNotes || 'No additional notes provided'}
@@ -713,7 +768,20 @@ Generate the complete document now using ALL the provided analysis data.
       }
     } catch (err) {
       console.error('Error generating document:', err)
-      setError(err instanceof Error ? err.message : 'Failed to generate document')
+
+      // Provide specific error messages based on error type
+      let errorMessage = 'Failed to generate document'
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('network')) {
+          errorMessage = 'Network connectivity issue. Please check your internet connection and try again.'
+        } else if (err.message.includes('API request failed')) {
+          errorMessage = 'API service is currently unavailable. You can continue without document generation or try again later.'
+        } else {
+          errorMessage = err.message
+        }
+      }
+
+      setError(errorMessage)
     } finally {
       setIsGenerating(false)
     }
@@ -1042,6 +1110,129 @@ Generate the complete document now using ALL the provided analysis data.
               <p className="text-blue-800 text-sm">
                 <strong>Step 1:</strong> Research which internal or external issues define the areas that should be in the scope – e.g., the most sensitive information is in the company's R&D department.
               </p>
+            </div>
+
+            {/* Organization Details Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Organization Details</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Organization Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Organization Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={scopeData.organizationName}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, organizationName: e.target.value }))}
+                    placeholder="e.g., Acme Corporation"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Organization Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Organization Type *
+                  </label>
+                  <select
+                    value={scopeData.organizationType}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, organizationType: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Corporation">Corporation</option>
+                    <option value="LLC">LLC</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                    <option value="Non-Profit">Non-Profit</option>
+                    <option value="Government Agency">Government Agency</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {/* Industry */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Industry *
+                  </label>
+                  <input
+                    type="text"
+                    value={scopeData.industry}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, industry: e.target.value }))}
+                    placeholder="e.g., Technology Services"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Policy Version */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Policy Version *
+                  </label>
+                  <input
+                    type="text"
+                    value={scopeData.policyVersion}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, policyVersion: e.target.value }))}
+                    placeholder="e.g., 1.0"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* CEO Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CEO Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={scopeData.ceoName}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, ceoName: e.target.value }))}
+                    placeholder="e.g., John Smith"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* CISO Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CISO Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={scopeData.cisoName}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, cisoName: e.target.value }))}
+                    placeholder="e.g., Sarah Johnson"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Effective Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Effective Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={scopeData.effectiveDate}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, effectiveDate: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Next Review Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Next Review Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={scopeData.nextReviewDate}
+                    onChange={(e) => setScopeData(prev => ({ ...prev, nextReviewDate: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -1970,23 +2161,38 @@ Generate the complete document now using ALL the provided analysis data.
                 <ChevronRight className="w-5 h-5" />
               </button>
             ) : (
-              <button
-                onClick={generateScopeDocument}
-                disabled={isGenerating}
-                className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span className="font-medium">Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <FileText className="w-5 h-5" />
-                    <span className="font-medium">Generate Document</span>
-                  </>
-                )}
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={generateScopeDocument}
+                  disabled={isGenerating}
+                  className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="font-medium">Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-5 h-5" />
+                      <span className="font-medium">Generate with AI</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (onScopeComplete) {
+                      onScopeComplete(scopeData)
+                    }
+                  }}
+                  disabled={isGenerating}
+                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                  <span className="font-medium">Continue Without AI</span>
+                </button>
+              </div>
             )}
           </div>
         </div>

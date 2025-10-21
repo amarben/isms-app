@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronRight, ChevronLeft, Save, FileText, Download, Eye, Users, Building, Shield, CheckCircle, Plus, Check, Loader2, Copy, FileDown } from 'lucide-react'
 
 interface PolicyData {
@@ -37,7 +37,7 @@ const initialPolicyData: PolicyData = {
   securityManager: '',
   effectiveDate: '',
   reviewDate: '',
-  version: '1.0',
+  version: '',
   policyStatement: '',
   objectives: [],
   scope: '',
@@ -132,15 +132,15 @@ const predefinedResponsibilities = [
   }
 ]
 
-const predefinedPolicyStatements = [
-  `${initialPolicyData.organizationName || '[Organization Name]'} is committed to protecting the confidentiality, integrity, and availability of all information assets and ensuring the security of information systems that support our business operations.`,
-  `${initialPolicyData.organizationName || '[Organization Name]'} recognizes that information is a critical asset and is committed to implementing comprehensive security measures to protect it from unauthorized access, use, disclosure, disruption, modification, or destruction.`,
-  `This Information Security Policy establishes ${initialPolicyData.organizationName || '[Organization Name]'}'s commitment to maintaining the highest standards of information security and ensuring compliance with applicable laws, regulations, and industry standards.`,
-  `${initialPolicyData.organizationName || '[Organization Name]'} is dedicated to creating and maintaining a secure environment for all information assets through the implementation of appropriate technical, administrative, and physical safeguards.`,
-  `The management of ${initialPolicyData.organizationName || '[Organization Name]'} is committed to establishing, implementing, maintaining, and continually improving an Information Security Management System (ISMS) in accordance with ISO 27001:2022 standards.`,
-  `${initialPolicyData.organizationName || '[Organization Name]'} commits to protecting stakeholder information and maintaining customer trust through robust information security practices and continuous improvement of our security posture.`,
-  `This policy demonstrates ${initialPolicyData.organizationName || '[Organization Name]'}'s commitment to information security governance and establishes the foundation for all security-related activities across the organization.`,
-  `${initialPolicyData.organizationName || '[Organization Name]'} will maintain effective information security controls to ensure business continuity, protect competitive advantage, and fulfill our obligations to customers, employees, and regulatory bodies.`
+const getPredefinedPolicyStatements = (organizationName: string) => [
+  `${organizationName} is committed to protecting the confidentiality, integrity, and availability of all information assets and ensuring the security of information systems that support our business operations.`,
+  `${organizationName} recognizes that information is a critical asset and is committed to implementing comprehensive security measures to protect it from unauthorized access, use, disclosure, disruption, modification, or destruction.`,
+  `This Information Security Policy establishes ${organizationName}'s commitment to maintaining the highest standards of information security and ensuring compliance with applicable laws, regulations, and industry standards.`,
+  `${organizationName} is dedicated to creating and maintaining a secure environment for all information assets through the implementation of appropriate technical, administrative, and physical safeguards.`,
+  `The management of ${organizationName} is committed to establishing, implementing, maintaining, and continually improving an Information Security Management System (ISMS) in accordance with ISO 27001:2022 standards.`,
+  `${organizationName} commits to protecting stakeholder information and maintaining customer trust through robust information security practices and continuous improvement of our security posture.`,
+  `This policy demonstrates ${organizationName}'s commitment to information security governance and establishes the foundation for all security-related activities across the organization.`,
+  `${organizationName} will maintain effective information security controls to ensure business continuity, protect competitive advantage, and fulfill our obligations to customers, employees, and regulatory bodies.`
 ]
 
 const predefinedScopeStatements = [
@@ -179,12 +179,131 @@ const predefinedConsequences = [
   'Violations may lead to immediate suspension of access rights, investigation, and appropriate disciplinary action based on the nature and impact of the incident.'
 ]
 
-const InformationSecurityPolicy: React.FC = () => {
+interface ScopeData {
+  organizationName: string
+  organizationType: string
+  industry: string
+  policyVersion: string
+  ceoName: string
+  cisoName: string
+  effectiveDate: string
+  nextReviewDate: string
+  internalIssues: string[]
+  externalIssues: string[]
+  interestedParties: Array<{
+    party: string
+    requirements: string
+    influence: string
+  }>
+  interfaces: Array<{
+    system: string
+    dependency: string
+    impact: string
+  }>
+  exclusions: Array<{
+    item: string
+    justification: string
+  }>
+  scopeDocument: {
+    processesAndServices: string[]
+    departments: string[]
+    physicalLocations: string[]
+    additionalNotes: string
+  }
+}
+
+interface InformationSecurityPolicyProps {
+  scopeData?: ScopeData | null
+}
+
+const InformationSecurityPolicy: React.FC<InformationSecurityPolicyProps> = ({ scopeData }) => {
   const [currentStep, setCurrentStep] = useState(0)
-  const [policyData, setPolicyData] = useState<PolicyData>(initialPolicyData)
+  const [policyData, setPolicyData] = useState<PolicyData>(() => {
+    // Try to load from localStorage first
+    const savedPolicy = localStorage.getItem('isms-policy-data')
+    if (savedPolicy) {
+      try {
+        return JSON.parse(savedPolicy)
+      } catch (e) {
+        console.error('Error parsing saved policy data:', e)
+      }
+    }
+
+    // Load from localStorage scope data if available
+    const savedScope = localStorage.getItem('isms-scope-data')
+    if (savedScope) {
+      try {
+        const scope = JSON.parse(savedScope)
+        return {
+          ...initialPolicyData,
+          organizationName: scope.organizationName || '',
+          industry: scope.industry || '',
+          ceo: scope.ceoName || '',
+          ciso: scope.cisoName || '',
+          effectiveDate: scope.effectiveDate || '',
+          reviewDate: scope.nextReviewDate || '',
+          version: scope.policyVersion || ''
+        }
+      } catch (e) {
+        console.error('Error parsing saved scope data:', e)
+      }
+    }
+
+    // Fallback to scopeData prop or initialPolicyData
+    return {
+      ...initialPolicyData,
+      organizationName: scopeData?.organizationName || '',
+      industry: scopeData?.industry || '',
+      ceo: scopeData?.ceoName || '',
+      ciso: scopeData?.cisoName || '',
+      effectiveDate: scopeData?.effectiveDate || '',
+      reviewDate: scopeData?.nextReviewDate || '',
+      version: scopeData?.policyVersion || ''
+    }
+  })
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedDocument, setGeneratedDocument] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Update organization details when scope data in localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedScope = localStorage.getItem('isms-scope-data')
+      if (savedScope) {
+        try {
+          const scope = JSON.parse(savedScope)
+          setPolicyData(prev => ({
+            ...prev,
+            organizationName: scope.organizationName || prev.organizationName,
+            industry: scope.industry || prev.industry,
+            ceo: scope.ceoName || prev.ceo,
+            ciso: scope.cisoName || prev.ciso,
+            effectiveDate: scope.effectiveDate || prev.effectiveDate,
+            reviewDate: scope.nextReviewDate || prev.reviewDate,
+            version: scope.policyVersion || ''
+          }))
+        } catch (e) {
+          console.error('Error parsing scope data:', e)
+        }
+      }
+    }
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('isms-data-updated', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('isms-data-updated', handleStorageChange)
+    }
+  }, [])
+
+  // Save to localStorage whenever policyData changes
+  useEffect(() => {
+    localStorage.setItem('isms-policy-data', JSON.stringify(policyData))
+    // Dispatch custom event to notify other components (like Dashboard)
+    window.dispatchEvent(new Event('isms-data-updated'))
+  }, [policyData])
 
   const steps = [
     {
@@ -214,9 +333,26 @@ const InformationSecurityPolicy: React.FC = () => {
     }
   ]
 
+  const validateCurrentStep = () => {
+    switch (currentStep) {
+      case 0:
+        return policyData.policyStatement.trim() !== '' && policyData.scope.trim() !== ''
+      case 1:
+        return policyData.organizationName.trim() !== '' && policyData.objectives.length > 0
+      case 2:
+        return policyData.responsibilities.length > 0
+      case 3:
+        return policyData.compliance.length > 0 && policyData.consequences.trim() !== ''
+      default:
+        return true
+    }
+  }
+
   const nextStep = () => {
-    if (currentStep < steps.length - 1) {
+    if (validateCurrentStep() && currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
+    } else if (!validateCurrentStep()) {
+      alert('Please fill in all required fields before proceeding.')
     }
   }
 
@@ -226,8 +362,13 @@ const InformationSecurityPolicy: React.FC = () => {
     }
   }
 
-  const addPredefinedObjective = (objective: string) => {
-    if (!policyData.objectives.includes(objective)) {
+  const togglePredefinedObjective = (objective: string) => {
+    if (policyData.objectives.includes(objective)) {
+      setPolicyData(prev => ({
+        ...prev,
+        objectives: prev.objectives.filter(obj => obj !== objective)
+      }))
+    } else {
       setPolicyData(prev => ({
         ...prev,
         objectives: [...prev.objectives, objective]
@@ -256,9 +397,14 @@ const InformationSecurityPolicy: React.FC = () => {
     }))
   }
 
-  const addPredefinedResponsibility = (responsibilityData: typeof predefinedResponsibilities[0]) => {
+  const togglePredefinedResponsibility = (responsibilityData: typeof predefinedResponsibilities[0]) => {
     const exists = policyData.responsibilities.some(r => r.role === responsibilityData.role)
-    if (!exists) {
+    if (exists) {
+      setPolicyData(prev => ({
+        ...prev,
+        responsibilities: prev.responsibilities.filter(r => r.role !== responsibilityData.role)
+      }))
+    } else {
       setPolicyData(prev => ({
         ...prev,
         responsibilities: [...prev.responsibilities, responsibilityData]
@@ -314,8 +460,13 @@ const InformationSecurityPolicy: React.FC = () => {
     }))
   }
 
-  const addPredefinedCompliance = (requirement: string) => {
-    if (!policyData.compliance.includes(requirement)) {
+  const togglePredefinedCompliance = (requirement: string) => {
+    if (policyData.compliance.includes(requirement)) {
+      setPolicyData(prev => ({
+        ...prev,
+        compliance: prev.compliance.filter(comp => comp !== requirement)
+      }))
+    } else {
       setPolicyData(prev => ({
         ...prev,
         compliance: [...prev.compliance, requirement]
@@ -542,8 +693,11 @@ Format the response as a complete, professionally written Information Security P
   }
 
   const downloadPolicyAsDocx = async () => {
+    console.log('Starting DOCX generation...')
     try {
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } = await import('docx')
+      console.log('Importing docx library...')
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = await import('docx')
+      console.log('Successfully imported docx library')
 
       const policyContent = generatedDocument || generatePolicy()
       const lines = policyContent.split('\n')
@@ -590,6 +744,7 @@ Format the response as a complete, professionally written Information Security P
         }
       }
 
+      console.log('Creating document with', children.length, 'paragraphs')
       const doc = new Document({
         sections: [{
           properties: {},
@@ -597,19 +752,28 @@ Format the response as a complete, professionally written Information Security P
         }]
       })
 
+      console.log('Converting document to buffer...')
       const buffer = await Packer.toBuffer(doc)
+      console.log('Successfully created buffer, size:', buffer.length, 'bytes')
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${policyData.organizationName.replace(/\s+/g, '-').toLowerCase()}-information-security-policy.docx`
+      const orgName = policyData.organizationName.trim() || 'organization'
+      a.download = `${orgName.replace(/\s+/g, '-').toLowerCase()}-information-security-policy.docx`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error generating DOCX:', error)
-      alert('Failed to generate DOCX file. Please try downloading as Markdown instead.')
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        organizationName: policyData.organizationName,
+        hasGeneratedDocument: !!generatedDocument
+      })
+      alert(`Failed to generate DOCX file: ${error instanceof Error ? error.message : 'Unknown error'}. Please try downloading as Markdown instead.`)
     }
   }
 
@@ -633,13 +797,12 @@ Format the response as a complete, professionally written Information Security P
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Select from template policy statements:</h4>
                 <div className="grid grid-cols-1 gap-2">
-                  {predefinedPolicyStatements.map((statement, index) => {
-                    const dynamicStatement = statement.replace(/\[Organization Name\]/g, policyData.organizationName || '[Organization Name]')
-                    const isSelected = policyData.policyStatement === dynamicStatement
+                  {getPredefinedPolicyStatements(policyData.organizationName || 'TechCorp Solutions Ltd.').map((statement, index) => {
+                    const isSelected = policyData.policyStatement === statement
                     return (
                       <button
                         key={index}
-                        onClick={() => setPredefinedPolicyStatement(statement)}
+                        onClick={() => setPredefinedPolicyStatement(isSelected ? '' : statement)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
                             ? 'bg-green-50 border-green-200 text-green-800'
@@ -647,7 +810,7 @@ Format the response as a complete, professionally written Information Security P
                         }`}
                       >
                         <div className="flex items-start justify-between">
-                          <span className="flex-1">{dynamicStatement}</span>
+                          <span className="flex-1">{statement}</span>
                           {isSelected && <Check className="w-4 h-4 text-green-600 mt-1 ml-2 flex-shrink-0" />}
                         </div>
                       </button>
@@ -681,7 +844,7 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => setPredefinedScope(scope)}
+                        onClick={() => setPredefinedScope(isSelected ? '' : scope)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
                             ? 'bg-green-50 border-green-200 text-green-800'
@@ -722,6 +885,13 @@ Format the response as a complete, professionally written Information Security P
                 Define organization details, security objectives and policy scope. This information
                 will be used throughout the policy document.
               </p>
+              {scopeData && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-green-800 text-sm font-medium">
+                    ✓ Organization data imported from Scope Definition: {scopeData.organizationName}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Organization Details Section */}
@@ -732,13 +902,20 @@ Format the response as a complete, professionally written Information Security P
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Organization Name *
                   </label>
-                  <input
-                    type="text"
-                    value={policyData.organizationName}
-                    onChange={(e) => setPolicyData(prev => ({ ...prev, organizationName: e.target.value }))}
-                    placeholder="e.g., Acme Corporation"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  {scopeData ? (
+                    <div className="w-full border border-green-300 bg-green-50 rounded-md px-3 py-2 text-green-800 font-medium">
+                      {scopeData.organizationName}
+                      <span className="text-xs text-green-600 ml-2">(imported from scope)</span>
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={policyData.organizationName}
+                      onChange={(e) => setPolicyData(prev => ({ ...prev, organizationName: e.target.value }))}
+                      placeholder="e.g., Acme Corporation"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -849,11 +1026,10 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => addPredefinedObjective(objective)}
-                        disabled={isSelected}
+                        onClick={() => togglePredefinedObjective(objective)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
-                            ? 'bg-green-50 border-green-200 text-green-800 cursor-not-allowed'
+                            ? 'bg-green-50 border-green-200 text-green-800'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                         }`}
                       >
@@ -928,7 +1104,7 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => setPredefinedScope(scope)}
+                        onClick={() => setPredefinedScope(isSelected ? '' : scope)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
                             ? 'bg-green-50 border-green-200 text-green-800'
@@ -957,84 +1133,6 @@ Format the response as a complete, professionally written Information Security P
                 />
               </div>
             </div>
-
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Security Objectives</h3>
-
-              {/* Predefined Objectives */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Select from common security objectives:</h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {predefinedObjectives.map((objective, index) => {
-                    const isSelected = policyData.objectives.includes(objective)
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => addPredefinedObjective(objective)}
-                        disabled={isSelected}
-                        className={`text-left p-3 rounded-lg border text-sm transition-colors ${
-                          isSelected
-                            ? 'bg-green-50 border-green-200 text-green-800 cursor-not-allowed'
-                            : 'bg-white border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{objective}</span>
-                          {isSelected && <Check className="w-4 h-4 text-green-600" />}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Custom Objective */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Add a custom objective:</h4>
-                <button
-                  onClick={addObjective}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Custom Objective
-                </button>
-              </div>
-
-              {/* Selected Objectives */}
-              {policyData.objectives.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Selected objectives:</h4>
-                  <div className="space-y-3">
-                    {policyData.objectives.map((objective, index) => {
-                      const isPredefined = predefinedObjectives.includes(objective)
-                      return (
-                        <div key={index} className={`flex gap-2 p-3 rounded-lg border ${
-                          isPredefined ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
-                        }`}>
-                          {isPredefined ? (
-                            <div className="flex-1 text-blue-800 text-sm">{objective}</div>
-                          ) : (
-                            <input
-                              type="text"
-                              value={objective}
-                              onChange={(e) => updateObjective(index, e.target.value)}
-                              placeholder="e.g., Protect customer data from unauthorized access"
-                              className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          )}
-                          <button
-                            onClick={() => removeObjective(index)}
-                            className="text-red-500 hover:text-red-700 px-2"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         )
 
@@ -1061,11 +1159,10 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => addPredefinedResponsibility(roleData)}
-                        disabled={isSelected}
+                        onClick={() => togglePredefinedResponsibility(roleData)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
-                            ? 'bg-green-50 border-green-200 text-green-800 cursor-not-allowed'
+                            ? 'bg-green-50 border-green-200 text-green-800'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                         }`}
                       >
@@ -1127,7 +1224,7 @@ Format the response as a complete, professionally written Information Security P
                             </button>
                           </div>
                           <div className="space-y-2">
-                            {resp.responsibilities.map((item, itemIndex) => (
+                            {(resp.responsibilities || []).map((item, itemIndex) => (
                               <div key={itemIndex} className={`flex gap-2 p-2 rounded ${
                                 isPredefined ? 'bg-blue-25' : 'bg-gray-50'
                               }`}>
@@ -1203,11 +1300,10 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => addPredefinedCompliance(requirement)}
-                        disabled={isSelected}
+                        onClick={() => togglePredefinedCompliance(requirement)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
-                            ? 'bg-green-50 border-green-200 text-green-800 cursor-not-allowed'
+                            ? 'bg-green-50 border-green-200 text-green-800'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                         }`}
                       >
@@ -1281,7 +1377,7 @@ Format the response as a complete, professionally written Information Security P
                     return (
                       <button
                         key={index}
-                        onClick={() => setPredefinedConsequences(consequence)}
+                        onClick={() => setPredefinedConsequences(isSelected ? '' : consequence)}
                         className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                           isSelected
                             ? 'bg-green-50 border-green-200 text-green-800'
